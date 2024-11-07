@@ -15,19 +15,26 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+import dj_database_url
+import os
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-f045-)&pus46@yyl=88_as!dc-h$4=7n@4+n%6(cd466sxrk%s'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get("DEBUG","False").lower()=="true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
+RENDER_EXTERNA_HOSTNAME= os.environ.get('RENDER_EXTERNA_HOSTNAME')
+if RENDER_EXTERNA_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNA_HOSTNAME)
 
+# DEBUG = True
+
+# ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
@@ -84,7 +91,7 @@ DATABASES = {
         'DATEBASE_PORT': '5432',
     }
 }
-
+DATABASES["default"] = dj_database_url.parse("postgresql://bluyipred_user:W29gga5TDtElCLHie6970F7RSzkC8MNM@dpg-csm4g8lumphs73cihecg-a.oregon-postgres.render.com/bluyipred")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
