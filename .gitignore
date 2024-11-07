@@ -4,3 +4,4 @@ _pycache_/
 *.pyo
 *.pyd
 *.sqlite3
+*.log
