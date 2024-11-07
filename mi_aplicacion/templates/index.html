@@ -1,0 +1,1126 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>BluYiPred | Inicio</title>
+	<!-- Stylesheets -->
+	<link href="{%static 'assets/css/bootstrap.css' %}" rel="stylesheet">
+	<link href="{%static 'assets/css/style.css' %}" rel="stylesheet">
+	<link href="{%static 'assets/css/meanmenu.min.css' %}" rel="stylesheet">
+	<link href="{%static 'assets/css/responsive.css' %}" rel="stylesheet">
+
+	<link
+		href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap"
+		rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+		rel="stylesheet">
+
+	<link rel="shortcut icon" href="{%static 'assets/images/favicon.png' %}" type="image/x-icon">
+	<link rel="icon" href="{%static 'assets/images/favicon.png' %}" type="image/x-icon">
+
+	<!-- Responsive -->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<style>
+        /* Estilo para el mensaje */
+        .alert {
+            padding: 15px;
+            background-color: #4CAF50; /* Verde */
+            color: white;
+            margin: 20px auto; /* Margen superior e inferior para separación */
+            border-radius: 5px;
+            width: 80%; /* Ancho del contenedor */
+            max-width: 600px; /* Ancho máximo */
+            text-align: center; /* Centrar el texto */
+            position: relative;
+            top: 50%; /* Posición vertical */
+            transform: translateY(-50%); /* Centrar verticalmente */
+        }
+        /* Estilo del modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 600px;
+            top: 300px;
+            width: 40%; 
+            height: 50%; 
+            overflow: auto; 
+            background-color: rgba(0, 0, 0, 0.358); 
+        }
+        .modal-content {
+            background-color: #22123bf5;
+            margin: 15% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+        }
+        .close {
+            color: #ffffff;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+		table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px 0;
+    text-align: left;
+}
+
+
+    </style>
+</head>
+
+
+<body>
+	{% if messages %}
+	<div>
+		{% for message in messages %}
+			<div class="alert alert-success">
+				{{ message }}
+			</div>
+		{% endfor %}
+	</div>
+{% endif %}
+	<div class="page-wrapper">
+
+		<!-- Cursor -->
+		<div class="cursor"></div>
+		<div class="cursor-follower"></div>
+		<!-- Cursor End -->
+
+		<!-- Preloader -->
+		<div class="loader-wrap">
+			<div class="preloader">
+				<div class="preloader-close">x</div>
+				<div id="handle-preloader" class="handle-preloader">
+					<div class="animation-preloader">
+						<div class="txt-loading">
+							<span data-text-preloader="C" class="letters-loading">C</span>
+							<span data-text-preloader="A" class="letters-loading">A</span>
+							<span data-text-preloader="R" class="letters-loading">R</span>
+							<span data-text-preloader="G" class="letters-loading">G</span>
+							<span data-text-preloader="A" class="letters-loading">A</span>
+							<span data-text-preloader="N" class="letters-loading">N</span>
+							<span data-text-preloader="D" class="letters-loading">D</span>
+							<span data-text-preloader="O" class="letters-loading">O</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Preloader End -->
+
+		<!-- Main Header -->
+		<header class="main-header header-style-two alternate">
+
+			<!-- Header Lower -->
+			<div class="header-lower">
+				<div class="auto-container">
+					<div class="inner-container">
+						<div class="d-flex align-items-center justify-content-between flex-wrap">
+
+							<div class="nav-outer d-flex align-items-center flex-wrap">
+								<div class="logo-box">
+								<div class="logo">
+										<a href="index.html">
+										<img src="{%static 'assets/images/logo_app2.svg' %}" alt="" title=""
+										style="width: 70px; height: auto;">
+										</a>
+									</div>
+								</div>
+
+								<!-- Main Menu -->
+								<nav class="main-menu navbar-expand-md">
+									<div class="navbar-header">
+										<!-- Toggle Button -->
+										<button class="navbar-toggler" type="button" data-toggle="collapse"
+											data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+											aria-expanded="false" aria-label="Toggle navigation">
+											<span class="icon-bar"></span>
+											<span class="icon-bar"></span>
+											<span class="icon-bar"></span>
+										</button>
+									</div>
+
+									<div class="navbar-collapse collapse clearfix" id="navbarSupportedContent">
+										<ul class="navigation clearfix">
+											<li class="dropdown"><a href="{% url 'index'%}">Recolección de datos</a>
+											</li>
+											{% if request.session.user_id %}
+                							<li class="dropdown"><a href="{% url 'Reporte' %}">Reportes</a></li>
+											
+            								{% else %}
+                							<li class="dropdown"><a href="#">Reportes (Inicia sesión)</a></li>
+            								{% endif %}
+											<li class="dropdown"><a href="#">Recomendaciones</a>
+											</li>
+											
+										</ul>
+									</div>
+								</nav>
+							</div>
+
+							<!-- Main Menu End-->
+							<div class="outer-box d-flex align-items-center flex-wrap">
+
+								<!-- Button Box -->
+								<div class="main-header_buttons">
+									<a href="{%url 'login'%}" class="template-btn btn-style-two">
+										<span class="btn-wrap">
+											<span class="text-one">Iniciar sesión</span>
+											<span class="text-two">Iniciar sesión</span>
+										</span>
+									</a>
+									<a href="{%url 'register'%}" class="template-btn btn-style-one">
+										<span class="btn-wrap">
+											<span class="text-one">Registro</span>
+											<span class="text-two">Registro</span>
+										</span>
+									</a>
+								</div>
+
+								<!-- Mobile Navigation Toggler -->
+								<div class="mobile-nav-toggler">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu-2"
+										width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5"
+										stroke="currentColor" fill="none" stroke-linecap="round"
+										stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+										<path d="M4 6l16 0" />
+										<path d="M4 12l16 0" />
+										<path d="M4 18l16 0" />
+									</svg>
+								</div>
+
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--End Header Lower-->
+
+			<!-- Mobile Menu  -->
+			<div class="mobile-menu">
+				<div class="menu-backdrop"></div>
+				<div class="close-btn"><span class="icon fa-solid fa-xmark fa-fw"></span></div>
+
+				<nav class="menu-box">
+					<div class="nav-logo"><a href="index.html"><img src="{%static 'assets/images/mobile-logo.svg' %}" alt=""
+								title=""></a></div>
+					<div class="menu-outer">
+						<!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
+					</div>
+				</nav>
+			</div>
+			<!-- End Mobile Menu -->
+
+		</header>
+		<!-- End Main Header -->
+
+		<!-- Slider One -->
+		<section class="slider-one">
+			<div class="main-slider swiper-container">
+				<div class="swiper-wrapper">
+
+					<!-- Slide -->
+					<div class="swiper-slide">
+						<div class="slider-one_icon" style="background-image:url({%static 'assets/images/main-slider/icon-1.png' %})">
+						</div>
+						<div class="slider-one_icon-two"
+							style="background-image:url({%static 'assets/images/main-slider/icon-1.png' %})"></div>
+						<div class="slider-one_pattern"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-1.png' %})"></div>
+						<div class="slider-one_pattern-two"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-2.png' %})"></div>
+						<div class="slider-one_pattern-four"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-4.png' %})"></div>
+						<div class="auto-container">
+							<div class="row clearfix">
+								<!-- Content Column -->
+								<div class="slider-one_content col-lg-7 col-md-12 col-sm-12">
+									<div class="slider-one_content-inner">
+										<h1 class="slider-one_heading">Predicción temprana del <span>rendimiento</span>
+											de cultivos de arándanos</h1>
+										<div class="slider-one_text">Recolecta datos sobre las variables utilizadas
+											durante un ciclo de cultivo. Identificar el porcentaje de plagas,
+											enfermedades y malezas.</div>
+										<div class="slider-one_button d-flex align-items-center flex-wrap">
+											<a href="{%url 'login'%}" class="template-btn btn-style-one">
+												<span class="btn-wrap">
+													<span class="text-one">Empezar</span>
+													<span class="text-two">Empezar</span>
+												</span>
+											</a>
+
+										</div>
+									</div>
+								</div>
+								<!-- Image Column -->
+								<div class="slider-one_image-column col-lg-5 col-md-12 col-sm-12">
+									<div class="slider-one_pattern-three"
+										style="background-image:url({%static 'assets/images/main-slider/pattern-3.png' %})"></div>
+									<div class="slider-one_image-outer">
+										<!-- Slider One Percent -->
+										<div class="slider-one_graph">
+											<div class="slider-one_graph-title">Rendimiento anual
+											</div>
+											<img src="{%static 'assets/images/main-slider/graph.png' %}" alt="" />
+										</div>
+										<div class="slider-one_image">
+											<img src="{%static 'assets/images/main-slider/arandano.jpg' %}" alt="" />
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<!-- Slide -->
+					<div class="swiper-slide">
+						<div class="slider-one_icon" style="background-image:url({%static 'assets/images/main-slider/icon-1.png' %})">
+						</div>
+						<div class="slider-one_icon-two"
+							style="background-image:url({%static 'assets/images/main-slider/icon-1.png' %})"></div>
+						<div class="slider-one_pattern"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-1.png' %})"></div>
+						<div class="slider-one_pattern-two"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-2.png' %})"></div>
+						<div class="slider-one_pattern-four"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-4.png' %})"></div>
+						<div class="auto-container">
+							<div class="row clearfix">
+								<!-- Content Column -->
+								<div class="slider-one_content col-lg-7 col-md-12 col-sm-12">
+									<div class="slider-one_content-inner">
+										<h1 class="slider-one_heading">Predicción temprana del <span>rendimiento</span>
+											de cultivos de arándanos</h1>
+										<div class="slider-one_text">Recolecta datos sobre las variables utilizadas
+											durante un ciclo de cultivo. Identificar el porcentaje de plagas,
+											enfermedades y malezas.</div>
+										<div class="slider-one_button d-flex align-items-center flex-wrap">
+											<a href="{%url 'login'%}" class="template-btn btn-style-one">
+												<span class="btn-wrap">
+													<span class="text-one">Empezar</span>
+													<span class="text-two">Empezar</span>
+												</span>
+											</a>
+
+										</div>
+									</div>
+								</div>
+								<!-- Image Column -->
+								<div class="slider-one_image-column col-lg-5 col-md-12 col-sm-12">
+									<div class="slider-one_pattern-three"
+										style="background-image:url({%static 'assets/images/main-slider/pattern-3.png' %})"></div>
+									<div class="slider-one_image-outer">
+										<!-- Slider One Author -->
+										<div class="slider-one_author">
+											<i><img src="{%static 'assets/images/main-slider/icon-2.png' %}" alt="" /></i>
+										</div>
+
+										<div class="slider-one_graph">
+											<div class="slider-one_graph-title">Rendimiento anual
+											</div>
+											<img src="{%static 'assets/images/main-slider/graph.png' %}" alt="" />
+										</div>
+										<div class="slider-one_image">
+											<img src="{%static 'assets/images/main-slider/arandanos.jpg' %}" alt="" />
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+					<!-- Slide -->
+					<div class="swiper-slide">
+						<div class="slider-one_icon" style="background-image:url({%static 'assets/images/main-slider/icon-1.png' %})">
+						</div>
+						<div class="slider-one_icon-two"
+							style="background-image:url({%static 'assets/images/main-slider/icon-1.png' %})"></div>
+						<div class="slider-one_pattern"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-1.png' %})"></div>
+						<div class="slider-one_pattern-two"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-2.png' %})"></div>
+						<div class="slider-one_pattern-four"
+							style="background-image:url({%static 'assets/images/main-slider/pattern-4.png' %})"></div>
+						<div class="auto-container">
+							<div class="row clearfix">
+								<!-- Content Column -->
+								<div class="slider-one_content col-lg-7 col-md-12 col-sm-12">
+									<div class="slider-one_content-inner">
+										<h1 class="slider-one_heading">Predicción temprana del <span>rendimiento</span>
+											de cultivos de arándanos</h1>
+										<div class="slider-one_text">Recolecta datos sobre las variables utilizadas
+											durante un ciclo de cultivo. Identificar el porcentaje de plagas,
+											enfermedades y malezas.</div>
+										<div class="slider-one_button d-flex align-items-center flex-wrap">
+											<a href="{%url 'login'%}" class="template-btn btn-style-one">
+												<span class="btn-wrap">
+													<span class="text-one">Empezar</span>
+													<span class="text-two">Empezar</span>
+												</span>
+											</a>
+
+										</div>
+									</div>
+								</div>
+								<!-- Image Column -->
+								<div class="slider-one_image-column col-lg-5 col-md-12 col-sm-12">
+									<div class="slider-one_pattern-three"
+										style="background-image:url({%static 'assets/images/main-slider/pattern-3.png' %})"></div>
+									<div class="slider-one_image-outer">
+
+
+										<div class="slider-one_graph">
+											<div class="slider-one_graph-title">Rendimiento anual
+											</div>
+											<img src="{%static 'assets/images/main-slider/graph.png' %}" alt="" />
+										</div>
+										<div class="slider-one_image">
+											<img src="{%static 'assets/images/main-slider/plagas.jpg' %}" alt="" />
+										</div>
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</section>
+		<!-- End Main Slider Section -->
+
+
+
+		<!-- Faq One -->
+		<section class="faq-one style-three">
+			<div class="auto-container">
+				<div class="row clearfix">
+
+					<!-- Tab Column -->
+					<div class="faq-one_title-column col-lg-5 col-md-12 col-sm-12">
+						<div class="faq-one_title-outer">
+							<!-- Sec Title -->
+							<div class="sec-title">
+								<div class="sec-title_title">Rendimiento</div>
+								<h2 class="sec-title_heading">INGRESAR DATOS</h2>
+								<div class="sec-title_text">Ingrese los siguientes datos de las variables a continuación
+									para evaluar el rendimiento.</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Accordian Column -->
+					<div class="faq-one_accordian-column col-lg-7 col-md-12 col-sm-12">
+						<div class="faq-one_accordian-outer">
+						<form method="post" action="{% url 'index' %}" >
+								{% csrf_token %}
+							<!-- Accordion Box -->
+							<ul class="accordion-box_two">
+
+								<!-- Block -->
+								<li class="accordion block">
+									<div class="acc-btn">
+										<div class="icon-outer"><span
+												class="icon icon-plus fa-solid fa-plus fa-fw"></span></div>Variables
+										climáticas
+									</div>
+									<div class="acc-content">
+										<div class="content">
+											<!-- Codigo del form -->
+											<div class="column col-lg-10 col-md-12 col-sm-12">
+												<div class="default-form">
+													<div>
+														
+														<div class="row clearfix">
+															
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Temp_Max"  id= "Temp_Max" placeholder="Temperatura Maxima" required>
+															</div>
+															<!--Form Group-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Temp_Min"  id= "Temp_Min" placeholder="Temératura Minima" required>
+															</div>
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Humedad"  id= "Humedad" placeholder="Humedad" required>
+															</div>
+															<!--Form Group-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Radiacion_Solar"  id= "Radiacion_Solar" placeholder="Radiación Solar" required>
+															</div>
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Viento"  id= "Viento" placeholder="Viento" required>
+															</div>
+															<!--Form Group-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Precipitacion"  id= "Precipitacion" placeholder="Precipitacion" required>
+															</div>
+															
+														</div>
+														
+													</div>
+												</div>
+											</div> <!-- fin del c -->
+										</div>
+									</div>
+								</li>
+
+								<!-- Block -->
+								<li class="accordion block">
+									<div class="acc-btn">
+										<div class="icon-outer"><span
+												class="icon icon-plus fa-solid fa-plus fa-fw"></span></div>Variables
+										del suelo
+									</div>
+									<div class="acc-content">
+										<div class="content">
+											<!-- Codigo del form -->
+											<div class="column col-lg-10 col-md-12 col-sm-12">
+												<div class="default-form">
+													<div>
+														<div class="row clearfix">
+															<!--Form Group   revisaar-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="pH_Suelo"  id= "pH_Suelo" 
+																	placeholder="PH del suelo" required>
+															</div>
+															<!--Form Group-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Nitrogeno"  id= "Nitrogeno" 
+																	placeholder="Nivel de nutrientes (Nitrogeno)" required>
+															</div>
+
+														</div>
+													</div>
+												</div>
+											</div> <!-- fin del c -->
+
+
+										</div>
+									</div>
+								</li>
+
+								<!-- Block -->
+								<li class="accordion block">
+									<div class="acc-btn">
+										<div class="icon-outer"><span
+												class="icon icon-plus fa-solid fa-plus fa-fw"></span></div>Variables
+										agronómicas
+									</div>
+									<div class="acc-content">
+										<div class="content">
+											<!-- Codigo del form -->
+											<div class="column col-lg-10 col-md-12 col-sm-12">
+												<div class="default-form">
+													<div>
+														<div class="row clearfix">
+															<!--Form Group   revisaar-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Fertilizacion"  id= "Fertilizacion" 
+																	placeholder="Fertilización" required>
+															</div>
+															<!--Form Group-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Densidad"  id= "Densidad"   
+																placeholder="Densidad" required>
+															</div>
+
+														</div>
+													</div>
+												</div>
+											</div> <!-- fin del c -->
+										</div>
+									</div>
+								</li>
+
+								<!-- Block -->
+								<li class="accordion block">
+									<div class="acc-btn">
+										<div class="icon-outer"><span
+												class="icon icon-plus fa-solid fa-plus fa-fw"></span></div>Datos fenológicos 
+									</div>
+									<div class="acc-content">
+										<div class="content">
+											<!-- Codigo del form -->
+											<div class="column col-lg-10 col-md-12 col-sm-12">
+												<div class="default-form">
+													<div>
+														<div class="row clearfix">
+															
+															<!--Form Group-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="N_Flores"  id= "N_Flores" 
+																	placeholder="N° de Flores" required>
+															</div>
+															<!--Form Group-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Caida_Frutos"  id= "Caida_Frutos" 
+																	placeholder="Caída de frutos" required>
+															</div>
+															<!-- <a href="blog.html" class="template-btn btn-style-one">
+																<span class="btn-wrap">
+																	<span class="text-one">Empezar</span>
+																	<span class="text-two">Empezar</span>
+																</span>
+															</a> -->
+
+														</div>
+													</div>
+												</div>
+											</div> <!-- fin del c -->
+										</div>
+									</div>
+								</li>
+
+								<!-- Block -->
+								<li class="accordion block">
+									<div class="acc-btn">
+										<div class="icon-outer"><span
+												class="icon icon-plus fa-solid fa-plus fa-fw"></span></div> Datos de plagas y enfermedades
+									</div>
+									<div class="acc-content">
+										<div class="content">
+											<!-- Codigo del form -->
+											<div class="column col-lg-10 col-md-12 col-sm-12">
+												<div class="default-form">
+													<div>
+														<div class="row clearfix">
+															<!--Form Group   revisaar-->
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Plagas"  id= "Plagas" 
+																	placeholder="Plagas y enfermedades" required>
+															</div>
+															<!-- <div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="Rendimiento"  id= "Rendimiento" 
+																	placeholder="Rendimiento" required>
+															</div> -->
+														</div>
+													</div>
+												</div>
+											</div> <!-- fin del c -->
+										</div>
+									</div>
+								</li>
+							</ul>
+							{% if request.session.user_id %}
+    <button style="margin-top: 15px;" type="submit" class="btn-style-one submit-btn">
+        <span class="btn-wrap">
+            <span style="font-size: 25px; font-weight: bold;" class="text-one">Calcular Rendimiento</span>
+            <span style="font-size: 25px; font-weight: bold;" class="text-two">Calcular Rendimiento</span>
+        </span>
+    </button>
+{% else %}
+    <button style="margin-top: 15px;" type="button" class="btn-style-one submit-btn" disabled>
+        <span class="btn-wrap">
+            <span style="font-size: 25px; font-weight: bold;" class="text-one">Inicia sesión para calcular</span>
+            <span style="font-size: 25px; font-weight: bold;" class="text-two">Inicia sesión para calcular</span>
+        </span>
+    </button>
+{% endif %}
+						</form>
+						<div id="myModal" class="modal">
+							<div class="modal-content">
+								<span class="close">&times;</span>
+								<h2 style="color: white; font-weight: bold; margin-top: 30px;border-bottom: 1px solid  rgba(255, 255, 255, 0.973);" >Rendimiento Estimado</h2> <br>
+								<p style=" color: white; font-size: 30px;font-weight: bold;" id="rendimiento-estimado">
+									{% if estimated_rendimiento %}
+										El rendimiento estimado es: {{ estimated_rendimiento|floatformat:2 }} Kg/ha.
+									{% endif %}
+								</p>
+							</div>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- End Faq One -->
+		<section class="price-three">
+			<div class="auto-container">
+				<div class="inner-container">
+					<!-- Sec Title -->
+					<div class="sec-title centered">
+						<h2 class="sec-title_heading">Resultados</h2>
+					</div>
+					<div class="pricing-tabs tabs-box">
+
+						<!--Tab Btns-->
+						<div class="buttons-outer">
+							<ul class="tab-buttons clearfix">
+								<li data-tab="#prod-monthly" class="tab-btn active-btn">Datos actuales</li>
+								<li data-tab="#prod-yearly" class="tab-btn">Recomendaciones</li>
+							</ul>
+						</div>
+
+						<!--Tabs Container-->
+						<div class="tabs-content">
+
+							<!-- Tab -->
+							<div class="tab active-tab" id="prod-monthly">
+								<div class="content">
+									<div class="row clearfix">
+
+										
+										<!-- Price Block One -->
+										<div class="price-block_one active col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-one_stars"
+													style="background-image:url({% static 'assets/images/icons/price-stars.png' %})">
+												</div>
+												<div class="price-block_one-title">Variables climáticas</div>
+												<div class="price-block_one-subtitle">Datos ingresados</div>
+												<div class="price-block_one-content">
+										
+													{% if latest_record %}
+														<table style="color: white; width: 100%; border-collapse: collapse; ">
+															<tr style="font-size: 20px; ">
+																<th style="text-align: left;">Campo</th>
+																<th style="text-align: left;">Valor</th>
+															</tr>
+															<tr>
+																<td style="padding: 10px 0;">Temperatura Máxima </td>
+																<td style="padding: 10px 0;">{{ latest_record.Temp_Max }}</td>
+															</tr>
+															<tr>
+																<td>Temperatura Mínima </td>
+																<td>{{ latest_record.Temp_Min }}</td>
+															</tr>
+															<tr>
+																<td>Humedad</td>
+																<td>{{ latest_record.Humedad }}</td>
+															</tr>
+															<tr>
+																<td>Radiación Solar</td>
+																<td>{{ latest_record.Radiacion_Solar }}</td>
+															</tr>
+															<tr>
+																<td>Viento</td>
+																<td>{{ latest_record.Viento }}</td>
+															</tr>
+															<tr>
+																<td>Precipitación</td>
+																<td>{{ latest_record.Precipitacion }}</td>
+															</tr>
+															
+														</table>
+													{% else %}
+														<p style="color: white; font-weight: bold;">No hay registros disponibles o no iniciaste sesión</p>
+													{% endif %}
+										
+												</div>
+											</div>
+										</div>
+										
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Variables del suelo</div>
+												<div class="price-block_one-subtitle">Datos ingresados</div>
+												<div class="price-block_one-content">
+													<div class="price-block_one-content">
+										
+														{% if latest_record %}
+														<table style="color: white;">
+															<tr style="font-size: 20px;">
+																<th>Campo</th>
+																<th>Valor</th>
+															</tr>
+														<tr>
+															<td>pH del Suelo</td>
+															<td>{{ latest_record.pH_Suelo }}</td>
+														</tr>
+														<tr>
+															<td>Nitrógeno</td>
+															<td>{{ latest_record.Nitrogeno }}</td>
+														</tr>
+													</table>
+													{% else %}
+														<p style="color: white; font-weight: bold;">No hay registros disponibles o no iniciaste sesión</p>
+													{% endif %}
+										
+												</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Variables agronómicas</div>
+												<div class="price-block_one-subtitle">Datos ingresados</div>
+												<div class="price-block_one-content">
+
+													<div class="price-block_one-content">
+										
+														{% if latest_record %}
+														<table style="color: white;">
+															<tr style="font-size: 20px;">
+																<th>Campo</th>
+																<th>Valor</th>
+															</tr>
+															<tr>
+																<td>Fertilización</td>
+																<td>{{ latest_record.Fertilizacion }}</td>
+															</tr>
+															<tr>
+																<td>Densidad</td>
+																<td>{{ latest_record.Densidad }}</td>
+															</tr>
+														</table>
+														{% else %}
+															<p style="color: white; font-weight: bold;">No hay registros disponibles o no iniciaste sesión</p>
+														{% endif %}
+											
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Datos fenológicos</div>
+												<div class="price-block_one-subtitle">Datos ingresados</div>
+												<div class="price-block_one-content">
+													<div class="price-block_one-content">
+										
+														{% if latest_record %}
+														<table style="color: white;">
+															<tr style="font-size: 20px;">
+																<th>Campo</th>
+																<th>Valor</th>
+															</tr>
+													<tr>
+														<td>Número de Flores</td>
+														<td>{{ latest_record.N_Flores }}</td>
+													</tr>
+													<tr>
+														<td>Caída de Frutos</td>
+														<td>{{ latest_record.Caida_Frutos }}</td>
+													</tr>
+													
+												</table>
+												{% else %}
+													<p style="color: white; font-weight: bold;">No hay registros disponibles o no iniciaste sesión</p>
+												{% endif %}
+												</div>
+												</div>
+											</div>
+										</div>
+
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Datos de plagas y enfermedades</div>
+												<div class="price-block_one-subtitle">Datos ingresados</div>
+												<div class="price-block_one-content">
+
+													<div class="price-block_one-content">
+										
+														{% if latest_record %}
+														<table style="color: white;">
+															<tr style="font-size: 20px;">
+																<th>Campo</th>
+																<th>Valor</th>
+															</tr>
+													
+													<tr>
+														<td>Plagas</td>
+														<td>{{ latest_record.Plagas }}</td>
+													</tr>
+													
+												</table>
+												{% else %}
+													<p style="color: white; font-weight: bold;">No hay registros disponibles o no iniciaste sesión</p>
+												{% endif %}
+												</div>
+												</div>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+
+							<!-- Tab -->
+							<form method="post" action="{% url 'guardar_recomendaciones' %}" >
+								{% csrf_token %}
+							<div class="tab" id="prod-yearly">
+								<div class="content">
+									<div class="row clearfix">
+										
+
+										<!-- Price Block One -->
+										<div class="price-block_one active col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-one_stars"
+													style="background-image:url({%static 'assets/images/icons/price-stars.png' %})">
+												</div>
+												<div class="price-block_one-title">Variables climáticas</div>
+												<div class="price-block_one-subtitle">Ingresar recomendaciones</div>
+												<div class="price-block_one-content">
+													<div class="column col-lg-12 col-md-12 col-sm-12">
+														<div class="default-form">
+
+															<div >
+																<div class="row clearfix">
+																	<!--Form Group-->
+																	<div
+																		class="form-group col-lg-12 col-md-12 col-sm-12">
+																		<input type="text" name="rclimaticas" 
+																			placeholder="Recomendaciones" required>
+																	</div>
+																	<!--Form Group-->
+																	
+
+																</div>
+															</div>
+														</div>
+													</div>
+
+													
+												</div>
+											</div>
+										</div>
+
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Variables del suelo</div>
+												<div class="price-block_one-subtitle">Ingresar recomendaciones</div>
+												<div class="price-block_one-content">
+													<div class="column col-lg-12 col-md-12 col-sm-12">
+														<div class="default-form">
+															<div >
+																<div class="row clearfix">
+																	<!--Form Group-->
+																	<div
+																		class="form-group col-lg-12 col-md-12 col-sm-12">
+																		<input type="text" name="rsuelo" 
+																			placeholder="Recomendaciones" required>
+																	</div>
+																	<!--Form Group-->
+																	
+																</div>
+															</div>
+														</div>
+													</div>
+													
+												</div>
+											</div>
+										</div>
+
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Variables agronómicas</div>
+												<div class="price-block_one-subtitle">Ingresar recomendaciones</div>
+												<div class="price-block_one-content">
+													<div class="column col-lg-12 col-md-12 col-sm-12">
+														<div class="default-form">
+															<div >
+																<div class="row clearfix">
+																	<!--Form Group-->
+																	<div
+																		class="form-group col-lg-12 col-md-12 col-sm-12">
+																		<input type="text" name="ragronomicas" 
+																			placeholder="Recomendaciones" required>
+																	</div>
+																	<!--Form Group-->
+																	
+																</div>
+															</div>
+														</div>
+													</div>
+													
+												</div>
+											</div>
+										</div>
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Datos fenológicos</div>
+												<div class="price-block_one-subtitle">Ingresar recomendaciones</div>
+												<div class="price-block_one-content">
+													<div class="column col-lg-12 col-md-12 col-sm-12">
+														<div class="default-form">
+															<div>
+																<div class="row clearfix">
+																	<!--Form Group-->
+																	<div
+																		class="form-group col-lg-12 col-md-12 col-sm-12">
+																		<input type="text" name="rfenologicos" 
+																			placeholder="Recomendaciones" required>
+																	</div>
+																	<!--Form Group-->
+																	
+																</div>
+															</div>
+														</div>
+													</div>
+													
+												</div>
+											</div>
+										</div>
+										<!-- Price Block One -->
+										<div class="price-block_one col-lg-4 col-md-6 col-sm-12">
+											<div class="price-block_one-inner">
+												<div class="price-block_one-title">Datos de plagas y enfermedades</div>
+												<div class="price-block_one-subtitle">Ingresar recomendaciones</div>
+												<div class="price-block_one-content">
+													<div class="column col-lg-12 col-md-12 col-sm-12">
+														<div class="default-form">
+															<div>
+																<div class="row clearfix">
+																	<!--Form Group-->
+																	<div
+																		class="form-group col-lg-12 col-md-12 col-sm-12">
+																		<input type="text" name="rplagas" 
+																			placeholder="Recomendaciones" required>
+																	</div>
+																	
+																</div>
+															</div>
+														</div>
+													</div>
+													
+												</div>
+											</div>
+										</div>
+
+										<div style="margin-bottom: 40px;" class="price-block_one-button">
+											<button class="template-btn price-one_button" type="submit">Guardar</button>
+										</div>
+
+									</div>
+								</div>
+								
+							</div>
+							</Form >
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</section>
+		<!-- End Price Three -->
+
+
+		<!-- Main Footer -->
+		<footer class="main-footer">
+			<div class="footer_pattern" style="background-image: url({%static 'assets/images/background/footer-pattern.png' %})">
+			</div>
+			<div class="footer-bottom">
+				<div class="auto-container">
+					
+					<div class="inner-container d-flex justify-content-between align-items-center flex-wrap">
+					
+					<div class="logo-box">
+								<div class="logo">
+										<a href="index.html">
+										<img src="{%static 'assets/images/logo_app2.svg' %}" alt="" title=""
+										style="width: 70px; height: auto;">
+										</a>
+									</div>
+								</div>
+						<div class="footer-copyright">&copy; 2024 <a href="index.html">Estela Gervacio García.</a> aster.
+						</div>
+						<!-- Social Box -->
+						<div class="footer-social_box">
+							<a href="https://facebook.com/"><i class="fa-brands fa-facebook-f"></i></a>
+							<a href="https://twitter.com/"><i class="fa-brands fa-twitter"></i></a>
+							<a href="https://youtube.com/"><i class="fa-brands fa-youtube"></i></a>
+							<a href="https://instagram.com/"><i class="fa-brands fa-instagram"></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+	</div>
+	<!-- End PageWrapper -->
+
+	<div class="progress-wrap">
+		<svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+			<path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+		</svg>
+	</div>
+
+	<script src="{%static 'assets/js/jquery.js' %}"></script>
+	<script src="{%static 'assets/js/popper.min.js' %}"></script>
+	<script src="{%static 'assets/js/bootstrap.min.js' %}"></script>
+	<script src="{%static 'assets/js/appear.js' %}"></script>
+	<script src="{%static 'assets/js/parallax.min.js' %}"></script>
+	<script src="{%static 'assets/js/tilt.jquery.min.js' %}"></script>
+	<script src="{%static 'assets/js/jquery.paroller.min.js' %}"></script>
+	<script src="{%static 'assets/js/wow.js' %}"></script>
+	<script src="{%static 'assets/js/swiper.min.js' %}"></script>
+	<script src="{%static 'assets/js/backtotop.js' %}"></script>
+	<script src="{%static 'assets/js/odometer.js' %}"></script>
+	<script src="{%static 'assets/js/parallax-scroll.js' %}"></script>
+
+	<script src="{%static 'assets/js/gsap.min.js' %}"></script>
+	<script src="{%static 'assets/js/SplitText.min.js' %}"></script>
+	<script src="{%static 'assets/js/ScrollTrigger.min.js' %}"></script>
+	<script src="{%static 'assets/js/ScrollToPlugin.min.js' %}"></script>
+	<script src="{%static 'assets/js/ScrollSmoother.min.js' %}"></script>
+
+	<script src="{%static 'assets/js/touchspin.js' %}"></script>
+	<script src="{%static 'assets/js/jquery.marquee.min.js' %}"></script>
+	<script src="{%static 'assets/js/magnific-popup.min.js' %}"></script>
+	<script src="{%static 'assets/js/nav-tool.js' %}"></script>
+	<script src="{%static 'assets/js/jquery-ui.js' %}"></script>
+	<script src="{%static 'assets/js/element-in-view.js' %}"></script>
+	<script src="{%static 'assets/js/script.js' %}"></script>
+
+	<!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js' %}></script><![endif]-->
+	<!--[if lt IE 9]><script src="js/respond.js' %}></script><![endif]-->
+	<script>
+        // Mostrar modal si hay rendimiento estimado
+        window.onload = function() {
+            const estimatedRendimiento = "{{ estimated_rendimiento|default:'' }}"; // Obtener el valor de Django
+            if (estimatedRendimiento) {
+                var modal = document.getElementById("myModal");
+                modal.style.display = "block";
+            }
+        }
+
+        // Cerrar modal
+        var span = document.getElementsByClassName("close")[0];
+        span.onclick = function() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+        window.onclick = function(event) {
+            var modal = document.getElementById("myModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+</body>
+
+</html>
