@@ -26,7 +26,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 #SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG","False").lower()=="true"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split("")
+# ALLOWED_HOSTS = ['bluyipred.onrender.com']
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+
 
 RENDER_EXTERNA_HOSTNAME= os.environ.get('RENDER_EXTERNA_HOSTNAME')
 if RENDER_EXTERNA_HOSTNAME:
@@ -92,7 +94,7 @@ WSGI_APPLICATION = 'mi_proyecto.wsgi.application'
 #     }
 
 # }
-DATABASES["default"] = dj_database_url.parse("postgresql://bluyipred_user:W29gga5TDtElCLHie6970F7RSzkC8MNM@dpg-csm4g8lumphs73cihecg-a.oregon-postgres.render.com/bluyipred")
+DATABASES = ["default"] = dj_database_url.parse("postgresql://bluyipred_user:W29gga5TDtElCLHie6970F7RSzkC8MNM@dpg-csm4g8lumphs73cihecg-a.oregon-postgres.render.com/bluyipred")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
