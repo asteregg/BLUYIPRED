@@ -94,7 +94,9 @@ WSGI_APPLICATION = 'mi_proyecto.wsgi.application'
 #     }
 
 # }
-DATABASES = ["default"] = dj_database_url.parse("postgresql://bluyipred_user:W29gga5TDtElCLHie6970F7RSzkC8MNM@dpg-csm4g8lumphs73cihecg-a.oregon-postgres.render.com/bluyipred")
+DATABASES = {
+    'default':dj_database_url.parse("postgresql://bluyipred_user:W29gga5TDtElCLHie6970F7RSzkC8MNM@dpg-csm4g8lumphs73cihecg-a.oregon-postgres.render.com/bluyipred")
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
