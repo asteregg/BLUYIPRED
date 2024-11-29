@@ -34,6 +34,8 @@ class DatosAgricultura(models.Model):
     Plagas = models.IntegerField()
     Caida_Frutos = models.FloatField()
     Rendimiento = models.FloatField()
+    nhectaria = models.IntegerField(null=True)
+    tiempo_pro= models.FloatField(null=True,blank=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True, null=True)
 

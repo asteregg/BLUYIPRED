@@ -1,15 +1,15 @@
-{% load static %}
 <!DOCTYPE html>
 <html>
 
 <head>
 	<meta charset="utf-8">
-	<title>BluYiPred | Reportes</title>
+	<title>Reportes de Datos Agrícolas</title>
+	{% load static %}
 	<!-- Stylesheets -->
-	<link href="{% static 'assets/css/bootstrap.css' %}" rel="stylesheet">
-	<link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
-	<link href="{% static 'assets/css/meanmenu.min.css' %}" rel="stylesheet">
-	<link href="{% static 'assets/css/responsive.css' %}" rel="stylesheet">
+	<link href="{%static 'assets/css/bootstrap.css' %}" rel="stylesheet">
+	<link href="{%static 'assets/css/style.css' %}" rel="stylesheet">
+	<link href="{%static 'assets/css/meanmenu.min.css' %}" rel="stylesheet">
+	<link href="{%static 'assets/css/responsive.css' %}" rel="stylesheet">
 
 	<link
 		href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap"
@@ -71,9 +71,93 @@
             text-decoration: none;
             cursor: pointer;
         }
+		.alert {
+            padding: 15px;
+            background-color: #4CAF50; /* Verde */
+            color: white;
+            margin: 20px auto; /* Margen superior e inferior para separación */
+            border-radius: 5px;
+            width: 80%; /* Ancho del contenedor */
+            max-width: 600px; /* Ancho máximo */
+            text-align: center; /* Centrar el texto */
+            position: relative;
+            top: 50%; /* Posición vertical */
+            transform: translateY(-50%); /* Centrar verticalmente */
+        }
+        /* Estilo del modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 600px;
+            top: 300px;
+            width: 40%; 
+            height: 50%; 
+            overflow: auto; 
+            background-color: rgba(0, 0, 0, 0.358); 
+        }
+        .modal-content {
+            background-color: #22123bf5;
+            margin: 15% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
+        }
+        .close {
+            color: #ffffff;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+	
+        h1, h2, h3, h4, h5, h6, p, a, label {
+            color: white;
+        }
+
+        canvas {
+            margin-bottom: 30px;
+            max-width: 100%; /* Hacer canvas más flexible */
+            border-radius: 5px;
+            background-color: #ad75f71f;
+        }
+
+        .alert {
+            padding: 15px;
+            background-color: #ffcc00;
+            color: black;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .card {
+            background-color: #ad75f71f;
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .row {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
-
 
 <body>
 	
@@ -144,8 +228,6 @@
 											</li>
 											<li class="dropdown"><a href="{% url 'Reporte'%}">Reportes</a>
 											</li>
-											<li class="dropdown"><a href="#">Recomendaciones</a>
-											</li>
 											<li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
 										</ul>
 									</div>
@@ -211,134 +293,89 @@
 		<!-- End Main Header -->
 
 		<section class="price-three">
-			<div class="auto-container">
-				<div class="inner-container">
-					<!-- Sec Title -->
-					<div class="sec-title centered">
-						<h2 class="sec-title_heading">Tabla de reportes</h2>
-                       
+<!-- pegar aqui graficos -->
+		<div class="container mt-5">
+			<h1 class="text-center">Reportes de Datos Agrícolas</h1>
+
+			<form method="GET" action="{% url 'Reporte' %}" class="mb-4">
+				<div class="form-row align-items-end">
+					<div class="col-auto">
+						<label for="nhectarias">Filtrar por número de hectáreas:</label>
+						<input type="number" id="nhectarias" name="nhectarias" value="{{ nhectarias_filter }}" min="1" class="form-control" style="width: 150px;">
 					</div>
-					
+					<div class="col-auto">
+						<label for="fechaDesde">Fecha Desde:</label>
+						<input type="date" id="fechaDesde" name="fechaDesde" class="form-control" value="{{ request.GET.fechaDesde }}">
+					</div>
+					<div class="col-auto">
+						<label for="fechaHasta">Fecha Hasta:</label>
+						<input type="date" id="fechaHasta" name="fechaHasta" class="form-control" value="{{ request.GET.fechaHasta }}">
+					</div>
+					<div class="col-auto">
+						<button type="submit" class="btn btn-primary">Filtrar</button>
+					</div>
 				</div>
-                
+			</form>
+
+			<div class="row">
+				<div class="col-md-12">
+					<h3>Gráfico de Temperaturas</h3>
+					<canvas id="temperaturasChart"></canvas>
+				</div>
+				<div class="col-md-12">
+					<h3>Gráfico de Rendimiento Estimado</h3>
+					<canvas id="rendimientoChart"></canvas>
+				</div>
+				<div class="col-md-12">
+					<h3>Gráfico de Humedad</h3>
+					<canvas id="humedadChart"></canvas>
+				</div>
+				<div class="col-md-12">
+					<h3>Gráfico de Precipitación</h3>
+					<canvas id="precipitacionChart"></canvas>
+				</div>
+				<div class="col-md-12">
+					<h3>Gráfico de Radiación Solar</h3>
+					<canvas id="radiacionChart"></canvas>
+				</div>
+				<div class="col-md-12">
+					<h3>Número de Registros Clasificados por Hectárea</h3>
+					<canvas id="hectareasChart"></canvas>
+				</div>
 			</div>
-            {% if datos_agricultura %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Temperatura Máxima</th>
-                        <th>Temperatura Mínima</th>
-                        <th>Humedad</th>
-                        <th>Radiación Solar</th>
-                        <th>Viento</th>
-                        <th>Precipitacion</th>
-                        <th>PH del Suelo</th>
-                        <th>Nitrogeno</th>
-                        <th>Fertilizante</th>
-                        <th>Densidad</th>
-                        <th>Numero de Flores</th>
-                        <th>Plagas</th>
-                        <th>Caida de frutos</th>
-                        <th>Rendimiento</th>
-                        <th>pkuser</th>
-                        
-    
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for dato in datos_agricultura %}
-                        <tr>
-                            
-                            <td>{{ dato.Temp_Max }}</td>
-                            <td>{{ dato.Temp_Min }}</td>
-                            <td>{{ dato.Humedad }}</td>
-                            <td>{{ dato.Radiacion_Solar }}</td>
-                            <td>{{ dato.Viento }}</td>
-                            <td>{{ dato.Precipitacion }}</td>
-                            <td>{{ dato.pH_Suelo }}</td>
-                            <td>{{ dato.Nitrogeno }}</td>
-                            <td>{{ dato.Fertilizacion}}</td>
-                            <td>{{ dato.Densidad }}</td>
-                            <td>{{ dato.N_Flores }}</td>
-                            <td>{{ dato.Plagas }}</td>
-                            <td>{{ dato.Caida_Frutos }}</td>
-                            <td>{{ dato.Rendimiento }}</td>
-                            <td>{{ dato.pkuser }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>No hay datos agrícolas disponibles.</p>
-        {% endif %}
+
+			{% if datos_agricultura %}
+				<hr>
+				<div class="row">
+					{% for dato in datos_agricultura %}
+						<div class="col-md-6 col-lg-6"> <!-- Dos cuadros por fila -->
+							<div class="card">
+								<div class="card-body">
+									<h5 class="card-title">Registro ID: {{ dato.id }}</h5>
+									<p class="card-text"><strong>Temperatura Máxima:</strong> {{ dato.Temp_Max }} °C</p>
+									<p class="card-text"><strong>Temperatura Mínima:</strong> {{ dato.Temp_Min }} °C</p>
+									<p class="card-text"><strong>Rendimiento Estimado:</strong> {{ dato.Rendimiento }} Kg/ha</p>
+									<p class="card-text"><strong>Humedad:</strong> {{ dato.Humedad }} %</p>
+									<p class="card-text"><strong>Precipitación:</strong> {{ dato.Precipitacion }} mm</p>
+									<p class="card-text"><strong>Radiación Solar:</strong> {{ dato.Radiacion_Solar }} W/m²</p>
+									<p class="card-text"><strong>N° de Hectáreas:</strong> {{ dato.nhectarias }}</p>
+									<p class="card-text"><strong>Tiempo Transcurrido:</strong> {{ dato.tiempo_pro }} segundos</p>
+								</div>
+							</div>
+						</div>
+						{% if forloop.counter|divisibleby:2 %}</div><div class="row">{% endif %} <!-- Nueva fila cada dos elementos -->
+					{% endfor %}
+				</div>
+			{% else %}
+				<div class="alert alert-warning" role="alert">
+					No hay registros disponibles.
+				</div>
+			{% endif %}
+		</div>
+
 		</section>
 		<!-- End Price Three -->
-<style>
-    table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0px 0;
-    box-shadow: 0 2px 10px rgba(100, 4, 189, 0.521);
-    margin-bottom: 90px;
-}
 
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #7712d6;
-    background-color: #dddddd88;
-}
-
-th {
-    background-color: #7712d6;
-    color: white;
-}
-
-tr:hover {
-    background-color: #f1f1f1;
-}
-
-@media (max-width: 600px) {
-    table {
-        width: 100%;
-        display: block;
-        overflow-x: auto;
-    }
-
-    th, td {
-        display: block;
-        text-align: right;
-    }
-
-    th {
-        position: absolute;
-        left: -9999px;
-    }
-
-    tr {
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-    }
-
-    td {
-        text-align: left;
-        padding-left: 50%;
-        position: relative;
-        font-size: 20px;
-    
-    }
-
-    td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 10px;
-        width: 50%;
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        
-    }
-</style>
 
 		<!-- Main Footer -->
 		<footer class="main-footer">
@@ -406,32 +443,131 @@ tr:hover {
 	<script src="{%static 'assets/js/jquery-ui.js' %}"></script>
 	<script src="{%static 'assets/js/element-in-view.js' %}"></script>
 	<script src="{%static 'assets/js/script.js' %}"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctxTemperaturas = document.getElementById('temperaturasChart').getContext('2d');
+        const ctxRendimiento = document.getElementById('rendimientoChart').getContext('2d');
+        const ctxHumedad = document.getElementById('humedadChart').getContext('2d');
+        const ctxPrecipitacion = document.getElementById('precipitacionChart').getContext('2d');
+        const ctxRadiacion = document.getElementById('radiacionChart').getContext('2d');
+        const ctxHectareas = document.getElementById('hectareasChart').getContext('2d');
 
+        const createChart = (ctx, type, labels, datasets) => {
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Cantidad',
+                                color: 'white',
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Hectáreas',
+                                color: 'white',
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Gráficos
+        createChart(ctxTemperaturas, 'line', {{ fechas|safe }}, [
+            {
+                label: 'Temperatura Máxima (°C)',
+                data: {{ temperaturas_maximas|safe }},
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderWidth: 2,
+            },
+            {
+                label: 'Temperatura Mínima (°C)',
+                data: {{ temperaturas_minimas|safe }},
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderWidth: 2,
+            }
+        ]);
+
+        createChart(ctxRendimiento, 'bar', {{ fechas|safe }}, [{
+            label: 'Rendimiento Estimado (Kg/ha)',
+            data: {{ rendimientos|safe }},
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2
+        }]);
+
+        createChart(ctxHumedad, 'line', {{ fechas|safe }}, [{
+            label: 'Humedad (%)',
+            data: {{ humedades|safe }},
+            borderColor: 'rgba(255, 206, 86, 1)',
+            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+            borderWidth: 2,
+        }]);
+
+        createChart(ctxPrecipitacion, 'bar', {{ fechas|safe }}, [{
+            label: 'Precipitación (mm)',
+            data: {{ precipitaciones|safe }},
+            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+            borderColor: 'rgba(153, 102, 255, 1)',
+            borderWidth: 2
+        }]);
+
+        createChart(ctxRadiacion, 'line', {{ fechas|safe }}, [{
+            label: 'Radiación Solar (W/m²)',
+            data: {{ radiaciones|safe }},
+            borderColor: 'rgba(255, 159, 64, 1)',
+            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+            borderWidth: 2,
+        }]);
+
+        // Gráfico de Número de Registros Clasificados por Hectárea
+        const hectareas = [null, 1, 2]; // Ajustar según tus datos
+        const conteos = [1, 2, 1]; // Ajustar según tus datos
+
+        createChart(ctxHectareas, 'bar', hectareas.map(h => h === null ? 'N/A' : h), [{
+            label: 'Número de Registros',
+            data: conteos,
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.5)',
+                'rgba(54, 162, 235, 0.5)',
+                'rgba(255, 206, 86, 0.5)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)'
+            ],
+            borderWidth: 1
+        }]);
+    </script>
 	<!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js' %}></script><![endif]-->
 	<!--[if lt IE 9]><script src="js/respond.js' %}></script><![endif]-->
-	<script>
-        // Mostrar modal si hay rendimiento estimado
-        window.onload = function() {
-            const estimatedRendimiento = "{{ estimated_rendimiento|default:'' }}"; // Obtener el valor de Django
-            if (estimatedRendimiento) {
-                var modal = document.getElementById("myModal");
-                modal.style.display = "block";
-            }
-        }
 
-        // Cerrar modal
-        var span = document.getElementsByClassName("close")[0];
-        span.onclick = function() {
-            var modal = document.getElementById("myModal");
-            modal.style.display = "none";
-        }
-        window.onclick = function(event) {
-            var modal = document.getElementById("myModal");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-    </script>
 </body>
 
 </html>

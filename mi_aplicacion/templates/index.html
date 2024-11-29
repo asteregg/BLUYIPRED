@@ -73,14 +73,14 @@
         }
 
 		table {
-    width: 100%;
-    border-collapse: collapse;
-}
+    	width: 100%;
+    	border-collapse: collapse;
+		}
 
-th, td {
-    padding: 10px 0;
-    text-align: left;
-}
+		th, td {
+    	padding: 10px 0;
+    	text-align: left;
+		}
 
 
     </style>
@@ -436,10 +436,32 @@ th, td {
 						<div class="faq-one_accordian-outer">
 						<form method="post" action="{% url 'index' %}" >
 								{% csrf_token %}
-							<!-- Accordion Box -->
+							
 							<ul class="accordion-box_two">
-
-								<!-- Block -->
+								<!-- Accordion Box NUMERO DE  HECTARIA -->
+								<li class="accordion block">
+									<div class="acc-btn">
+										<div class="icon-outer"><span class="icon icon-plus fa-solid fa-plus fa-fw"></span></div>Número de hectaria
+									</div>
+									<div class="acc-content">
+										<div class="content">
+											<div class="column col-lg-10 col-md-12 col-sm-12">
+												<div class="default-form">
+													<div>
+														<div class="row clearfix">
+															<div class="form-group col-lg-10 col-md-10 col-sm-10">
+																<input type="text" name="nhectaria" id="nhectaria" placeholder="Ingresar el N° hectaria" required oninput="checkNhectaria()">
+															</div>
+														</div>
+														<div class="timer" id="tiempo_pro_display">Tiempo transcurrido: 0s</div>
+														<input type="hidden" name="tiempo_pro" id="tiempo_pro" required>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</li>
+								<!-- Block VARIABLES CLIMATICAS-->
 								<li class="accordion block">
 									<div class="acc-btn">
 										<div class="icon-outer"><span
@@ -486,7 +508,7 @@ th, td {
 									</div>
 								</li>
 
-								<!-- Block -->
+								<!-- Block VARIABLES DE SUELO-->
 								<li class="accordion block">
 									<div class="acc-btn">
 										<div class="icon-outer"><span
@@ -521,7 +543,7 @@ th, td {
 									</div>
 								</li>
 
-								<!-- Block -->
+								<!-- Block V AGRONOMICAS -->
 								<li class="accordion block">
 									<div class="acc-btn">
 										<div class="icon-outer"><span
@@ -554,7 +576,7 @@ th, td {
 									</div>
 								</li>
 
-								<!-- Block -->
+								<!-- Block DATOS FENOLOGICOS-->
 								<li class="accordion block">
 									<div class="acc-btn">
 										<div class="icon-outer"><span
@@ -593,7 +615,7 @@ th, td {
 									</div>
 								</li>
 
-								<!-- Block -->
+								<!-- Block PLAGAS DE ENFERMEDAS-->
 								<li class="accordion block">
 									<div class="acc-btn">
 										<div class="icon-outer"><span
@@ -623,21 +645,22 @@ th, td {
 									</div>
 								</li>
 							</ul>
+
 							{% if request.session.user_id %}
-    <button style="margin-top: 15px;" type="submit" class="btn-style-one submit-btn">
-        <span class="btn-wrap">
-            <span style="font-size: 25px; font-weight: bold;" class="text-one">Calcular Rendimiento</span>
-            <span style="font-size: 25px; font-weight: bold;" class="text-two">Calcular Rendimiento</span>
-        </span>
-    </button>
-{% else %}
-    <button style="margin-top: 15px;" type="button" class="btn-style-one submit-btn" disabled>
-        <span class="btn-wrap">
-            <span style="font-size: 25px; font-weight: bold;" class="text-one">Inicia sesión para calcular</span>
-            <span style="font-size: 25px; font-weight: bold;" class="text-two">Inicia sesión para calcular</span>
-        </span>
-    </button>
-{% endif %}
+            <button style="margin-top: 15px;" type="submit" class="btn-style-one submit-btn">
+                <span class="btn-wrap">
+                    <span style="font-size: 25px; font-weight: bold;" class="text-one">Calcular Rendimiento</span>
+                    <span style="font-size: 25px; font-weight: bold;" class="text-two">Calcular Rendimiento</span>
+                </span>
+            </button>
+        {% else %}
+            <button style="margin-top: 15px;" type="button" class="btn-style-one submit-btn" disabled>
+                <span class="btn-wrap">
+                    <span style="font-size: 25px; font-weight: bold;" class="text-one">Inicia sesión para calcular</span>
+                    <span style="font-size: 25px; font-weight: bold;" class="text-two">Inicia sesión para calcular</span>
+                </span>
+            </button>
+        {% endif %}
 						</form>
 						<div id="myModal" class="modal">
 							<div class="modal-content">
@@ -1120,6 +1143,33 @@ th, td {
                 modal.style.display = "none";
             }
         }
+		let timer; // Variable para almacenar el temporizador
+		let seconds = 0; // Contador de segundos
+	
+		function startTimer() {
+			if (!timer) { // Solo iniciar si no está ya en marcha
+				timer = setInterval(() => {
+					seconds++;
+					document.getElementById('tiempo_pro_display').innerText = `Tiempo transcurrido: ${seconds}s`;
+					document.getElementById('tiempo_pro').value = seconds; // Actualizar el campo oculto con el tiempo
+				}, 1000); // Incrementa cada segundo
+			}
+		}
+	
+		function stopTimer() {
+			clearInterval(timer); // Detener el temporizador
+			timer = null; // Reiniciar la variable del temporizador
+		}
+	
+		function checkNhectaria() {
+			const nhectariaValue = document.getElementById('nhectaria').value;
+			if (nhectariaValue && !timer) { // Iniciar cronómetro si hay valor y no está en marcha
+				startTimer();
+			}
+		}
+	
+		// Detener el cronómetro al enviar el formulario
+		document.querySelector('form').onsubmit = stopTimer;
     </script>
 </body>
 
