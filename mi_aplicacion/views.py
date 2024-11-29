@@ -1,4 +1,5 @@
 
+from collections import Counter
 from django.forms import ValidationError
 import joblib
 from django.shortcuts import render, redirect
@@ -19,30 +20,36 @@ from django.contrib import messages
 import numpy as np
 from .models import DatosAgricultura
 
-def index_view(request): #Función
-    estimated_rendimiento = None  # Inicializar la variable con un valor null
+def index_view(request):
+    estimated_rendimiento = None  # Inicializar la variable
 
     if request.method == 'POST':
-        # Obtener datos del formulario
-        Temp_Max = float(request.POST.get('Temp_Max'))
-        Temp_Min = float(request.POST.get('Temp_Min'))
-        Humedad = float(request.POST.get('Humedad'))
-        Radiacion_Solar = float(request.POST.get('Radiacion_Solar'))
-        Viento = float(request.POST.get('Viento'))
-        Precipitacion = float(request.POST.get('Precipitacion'))
-        pH_Suelo = float(request.POST.get('pH_Suelo'))
-        Nitrogeno = float(request.POST.get('Nitrogeno'))
-        Fertilizacion = float(request.POST.get('Fertilizacion'))
-        Densidad = float(request.POST.get('Densidad'))
-        N_Flores = float(request.POST.get('N_Flores'))
-        Caida_Frutos = float(request.POST.get('Caida_Frutos'))
-        Plagas = float(request.POST.get('Plagas'))
+        try:
+            # Obtener datos del formulario y convertir a float
+            Temp_Max = float(request.POST.get('Temp_Max'))
+            Temp_Min = float(request.POST.get('Temp_Min'))
+            Humedad = float(request.POST.get('Humedad'))
+            Radiacion_Solar = float(request.POST.get('Radiacion_Solar'))
+            Viento = float(request.POST.get('Viento'))
+            Precipitacion = float(request.POST.get('Precipitacion'))
+            pH_Suelo = float(request.POST.get('pH_Suelo'))
+            Nitrogeno = float(request.POST.get('Nitrogeno'))
+            Fertilizacion = float(request.POST.get('Fertilizacion'))
+            Densidad = float(request.POST.get('Densidad'))
+            N_Flores = int(request.POST.get('N_Flores'))  # Cambiar a int ya que es IntegerField
+            Plagas = int(request.POST.get('Plagas'))  # Cambiar a int ya que es IntegerField
+            Caida_Frutos = float(request.POST.get('Caida_Frutos'))
+            nhectaria = float(request.POST.get('nhectaria'))  # Obtener el número de hectáreas
+            tiempo_pro = float(request.POST.get('tiempo_pro'))  # Obtener el tiempo transcurrido
+        except (ValueError, TypeError):
+            messages.error(request, "Error al procesar los datos del formulario. Asegúrese de que todos los campos son válidos.")
+            return render(request, 'index.html', {'estimated_rendimiento': estimated_rendimiento})
 
         # Crear un array con las características para la predicción
         features = np.array([[Temp_Max, Temp_Min, Humedad, Radiacion_Solar,
-                                Viento, Precipitacion, pH_Suelo, Nitrogeno,
-                                Fertilizacion, Densidad, N_Flores,
-                                Plagas, Caida_Frutos]])
+                              Viento, Precipitacion, pH_Suelo, Nitrogeno,
+                              Fertilizacion, Densidad, N_Flores,
+                              Plagas, Caida_Frutos]])
 
         # Escalar las características
         scaled_features = scaler.transform(features)
@@ -54,28 +61,35 @@ def index_view(request): #Función
         user_id = request.session.get('user_id')  # Recuperar el ID del usuario de la sesión
 
         if user_id:  # Verificar si el ID del usuario está disponible
-            # Crear un nuevo registro en la base de datos
-            agricultura = DatosAgricultura(
-                Temp_Max=Temp_Max,
-                Temp_Min=Temp_Min,
-                Humedad=Humedad,
-                Radiacion_Solar=Radiacion_Solar,
-                Viento=Viento,
-                Precipitacion=Precipitacion,
-                pH_Suelo=pH_Suelo,
-                Nitrogeno=Nitrogeno,
-                Fertilizacion=Fertilizacion,
-                Densidad=Densidad,
-                N_Flores=N_Flores,
-                Caida_Frutos=Caida_Frutos,
-                Plagas=Plagas,
-                Rendimiento=estimated_rendimiento,  # Guardar rendimiento estimado
-                pkuser_id=user_id  # Guardar el ID del usuario en pkuser
-            )
-            agricultura.save()
+            try:
+                # Crear un nuevo registro en la base de datos
+                agricultura = DatosAgricultura(
+                    pkuser_id=user_id,  # Guardar el ID del usuario en pkuser
+                    Temp_Max=Temp_Max,
+                    Temp_Min=Temp_Min,
+                    Humedad=Humedad,
+                    Radiacion_Solar=Radiacion_Solar,
+                    Viento=Viento,
+                    Precipitacion=Precipitacion,
+                    pH_Suelo=pH_Suelo,
+                    Nitrogeno=Nitrogeno,
+                    Fertilizacion=Fertilizacion,
+                    Densidad=Densidad,
+                    N_Flores=N_Flores,
+                    Plagas=Plagas,
+                    Caida_Frutos=Caida_Frutos,
+                    Rendimiento=estimated_rendimiento,  # Guardar rendimiento estimado
+                    nhectaria=nhectaria,  # Guardar el número de hectáreas
+                    tiempo_pro=tiempo_pro  # Guardar el tiempo transcurrido
+                )
+                agricultura.save()
 
-            # Mensaje de éxito con rendimiento estimado
-            messages.success(request, f'Rendimiento estimado: {estimated_rendimiento:.2f} Kg/ha')
+                # Mensaje de éxito con rendimiento estimado
+                messages.success(request, f'Rendimiento estimado: {estimated_rendimiento:.2f} Kg/ha')
+            except (ValueError, TypeError):
+                messages.error(request, "Error al procesar los datos de nhectarias o tiempo transcurrido.")
+        else:
+            messages.warning(request, "No se ha encontrado el ID del usuario. No se puede guardar el registro.")
 
     # Inicializar latest_record
     latest_record = None
@@ -85,11 +99,18 @@ def index_view(request): #Función
     if user_id:
         # Obtener el último registro guardado
         latest_record = DatosAgricultura.objects.filter(pkuser_id=user_id).order_by('-id').first()
+        if latest_record:
+            messages.info(request, f'Último registro encontrado: {latest_record.Rendimiento:.2f} Kg/ha')
+        else:
+            messages.warning(request, 'No hay registros disponibles para este usuario.')
+    else:
+        messages.warning(request, "No estás autenticado. Por favor, inicia sesión para ver tus registros.")
 
     return render(request, 'index.html', {
         'estimated_rendimiento': estimated_rendimiento,
         'latest_record': latest_record  # Pasar el último registro a la plantilla
     })
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -125,22 +146,65 @@ def logout_view(request):
     messages.success(request, 'Has cerrado sesión con éxito.')
     return redirect('login')
 
-def reporte(request):
-    # Obtener el ID del usuario de la sesión
-    user_id = request.session.get('user_id')
-    print(f'User ID en sesión: {user_id}')   # Para depuración
 
-    # Verificar que se haya obtenido un ID de usuario
+def reporte(request):
+    user_id = request.session.get('user_id')
+
+    # Verificar si el usuario está autenticado
     if user_id is None:
-        # Si no hay ID de usuario en la sesión, agregar un mensaje de error
         messages.error(request, 'No estás autenticado. Por favor, inicia sesión para acceder a los reportes.')
-        return redirect('/accounts/login/')  # Redirigir a la página de inicio de sesión
+        return redirect('/accounts/login/')
+
+    # Obtener el número de hectáreas del formulario, si se proporciona
+    nhectarias_filter = request.GET.get('nhectarias', None)
 
     # Obtener todos los datos agrícolas del usuario autenticado
-    datos_agricultura = DatosAgricultura.objects.filter(pkuser_id=user_id)
+    try:
+        if nhectarias_filter:
+            datos_agricultura = DatosAgricultura.objects.filter(pkuser_id=user_id, nhectaria=nhectarias_filter)
+        else:
+            datos_agricultura = DatosAgricultura.objects.filter(pkuser_id=user_id)
 
-    # Pasar los datos a la plantilla
-    return render(request, 'reporte.html', {'datos_agricultura': datos_agricultura})
+        # Preparar datos para los gráficos
+        temperaturas_maximas = [dato.Temp_Max for dato in datos_agricultura]
+        temperaturas_minimas = [dato.Temp_Min for dato in datos_agricultura]
+        rendimientos = [dato.Rendimiento for dato in datos_agricultura]
+        humedades = [dato.Humedad for dato in datos_agricultura]
+        precipitaciones = [dato.Precipitacion for dato in datos_agricultura]
+        radiaciones = [dato.Radiacion_Solar for dato in datos_agricultura]
+        fechas = [dato.created.strftime("%Y-%m-%d") for dato in datos_agricultura]
+
+        # Contar el número de predicciones por hectárea
+        # Usar todos los datos para el conteo de hectáreas
+        todos_datos_agricultura = DatosAgricultura.objects.filter(pkuser_id=user_id)
+        hectarias = [dato.nhectaria for dato in todos_datos_agricultura]
+        contador_hectarias = Counter(hectarias)
+        hectarias_labels = list(contador_hectarias.keys())
+        predicciones_counts = list(contador_hectarias.values())
+
+        return render(request, 'reporte.html', {
+            'datos_agricultura': datos_agricultura,
+            'temperaturas_maximas': temperaturas_maximas,
+            'temperaturas_minimas': temperaturas_minimas,
+            'rendimientos': rendimientos,
+            'humedades': humedades,
+            'precipitaciones': precipitaciones,
+            'radiaciones': radiaciones,
+            'fechas': fechas,
+            'nhectarias_filter': nhectarias_filter,
+            'hectarias_labels': hectarias_labels,  # Para el nuevo gráfico
+            'predicciones_counts': predicciones_counts,  # Para el nuevo gráfico
+        })
+
+    except DatosAgricultura.DoesNotExist:
+        messages.error(request, 'No se encontraron datos agrícolas para el usuario.')
+        return redirect('/')
+
+    except Exception as e:
+        messages.error(request, f'Ocurrió un error: {str(e)}')
+        return redirect('/')
+    
+
 
 def latest_record_view(request):
     # Obtener el último registro guardado
