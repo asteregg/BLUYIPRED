@@ -1,5 +1,5 @@
 
-from collections import Counter
+from collections import defaultdict,Counter
 from django.forms import ValidationError
 import joblib
 from django.shortcuts import render, redirect
