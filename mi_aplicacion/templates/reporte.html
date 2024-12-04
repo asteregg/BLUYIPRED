@@ -1,568 +1,78 @@
-<!DOCTYPE html>
-<html>
+def reporte(request):
+    user_id = request.session.get('user_id')
 
-<head>
-	<meta charset="utf-8">
-	<title>Reportes de Datos Agrícolas</title>
-	{% load static %}
-	<!-- Stylesheets -->
-	<link href="{%static 'assets/css/bootstrap.css' %}" rel="stylesheet">
-	<link href="{%static 'assets/css/style.css' %}" rel="stylesheet">
-	<link href="{%static 'assets/css/meanmenu.min.css' %}" rel="stylesheet">
-	<link href="{%static 'assets/css/responsive.css' %}" rel="stylesheet">
+    # Verificar si el usuario está autenticado
+    if user_id is None:
+        messages.error(request, 'No estás autenticado. Por favor, inicia sesión para acceder a los reportes.')
+        return redirect('/accounts/login/')
 
-	<link
-		href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,600;1,700&display=swap"
-		rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-		rel="stylesheet">
+    # Obtener el número de hectáreas del formulario, si se proporciona
+    nhectarias_filter = request.GET.get('nhectarias', None)
 
-	<link rel="shortcut icon" href="{%static 'assets/images/favicon.png' %}" type="image/x-icon">
-	<link rel="icon" href="{%static 'assets/images/favicon.png' %}" type="image/x-icon">
+    # Obtener el rango de fechas del formulario, si se proporciona
+    fecha_inicio = request.GET.get('fecha_inicio', None)
+    fecha_fin = request.GET.get('fecha_fin', None)
 
-	<!-- Responsive -->
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-	<style>
-        /* Estilo para el mensaje */
-        .alert {
-            padding: 15px;
-            background-color: #4CAF50; /* Verde */
-            color: white;
-            margin: 20px auto; /* Margen superior e inferior para separación */
-            border-radius: 5px;
-            width: 80%; /* Ancho del contenedor */
-            max-width: 600px; /* Ancho máximo */
-            text-align: center; /* Centrar el texto */
-            position: relative;
-            top: 50%; /* Posición vertical */
-            transform: translateY(-50%); /* Centrar verticalmente */
-        }
-        /* Estilo del modal */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
-            left: 600px;
-            top: 300px;
-            width: 40%; 
-            height: 50%; 
-            overflow: auto; 
-            background-color: rgba(0, 0, 0, 0.358); 
-        }
-        .modal-content {
-            background-color: #22123bf5;
-            margin: 15% auto; 
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%; 
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
-        }
-        .close {
-            color: #ffffff;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-		.alert {
-            padding: 15px;
-            background-color: #4CAF50; /* Verde */
-            color: white;
-            margin: 20px auto; /* Margen superior e inferior para separación */
-            border-radius: 5px;
-            width: 80%; /* Ancho del contenedor */
-            max-width: 600px; /* Ancho máximo */
-            text-align: center; /* Centrar el texto */
-            position: relative;
-            top: 50%; /* Posición vertical */
-            transform: translateY(-50%); /* Centrar verticalmente */
-        }
-        /* Estilo del modal */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
-            left: 600px;
-            top: 300px;
-            width: 40%; 
-            height: 50%; 
-            overflow: auto; 
-            background-color: rgba(0, 0, 0, 0.358); 
-        }
-        .modal-content {
-            background-color: #22123bf5;
-            margin: 15% auto; 
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%; 
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0);
-        }
-        .close {
-            color: #ffffff;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+    # Filtrar los datos agrícolas del usuario autenticado
+    try:
+        # Construir la consulta base
+        query = DatosAgricultura.objects.filter(pkuser_id=user_id)
 
-	
-        h1, h2, h3, h4, h5, h6, p, a, label {
-            color: white;
-        }
+        # Aplicar filtros por hectárea y fechas, si se proporcionan
+        if nhectarias_filter:
+            query = query.filter(nhectaria=nhectarias_filter)
+        
+        if fecha_inicio and fecha_fin:
+            query = query.filter(created__range=[fecha_inicio, fecha_fin])
 
-        canvas {
-            margin-bottom: 30px;
-            max-width: 100%; /* Hacer canvas más flexible */
-            border-radius: 5px;
-            background-color: #ad75f71f;
-        }
+        # Obtener los datos filtrados
+        datos_agricultura = list(query)
 
-        .alert {
-            padding: 15px;
-            background-color: #ffcc00;
-            color: black;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
+        # Preparar datos para los gráficos
+        temperaturas_maximas = [dato.Temp_Max for dato in datos_agricultura]
+        temperaturas_minimas = [dato.Temp_Min for dato in datos_agricultura]
+        rendimientos = [dato.Rendimiento for dato in datos_agricultura]
+        humedades = [dato.Humedad for dato in datos_agricultura]
+        precipitaciones = [dato.Precipitacion for dato in datos_agricultura]
+        radiaciones = [dato.Radiacion_Solar for dato in datos_agricultura]
+        fechas = [dato.created.strftime("%Y-%m-%d") for dato in datos_agricultura]
+        hectarias = [dato.nhectaria for dato in datos_agricultura]
 
-        .card {
-            background-color: #ad75f71f;
-            border: none;
-            border-radius: 10px;
-            transition: transform 0.2s;
-        }
+        # Contar el número de predicciones por hectárea y sumar el rendimiento
+        predicciones_counts = Counter(hectarias)
+        rendimiento_por_hectaria = defaultdict(float)
 
-        .card:hover {
-            transform: scale(1.02);
-        }
+        for dato in datos_agricultura:
+            rendimiento_por_hectaria[dato.nhectaria] += dato.Rendimiento
 
-        .card-body {
-            padding: 20px;
-        }
+        hectarias_labels = list(predicciones_counts.keys())
+        predicciones_values = list(predicciones_counts.values())
+        rendimiento_totales = [rendimiento_por_hectaria[label] for label in hectarias_labels]
 
-        .row {
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
+        # Calcular el rendimiento total
+        rendimiento_total = sum(rendimiento_totales)
 
-<body>
-	
-	<div class="page-wrapper">
+        return render(request, 'reporte.html', {
+            'datos_agricultura': datos_agricultura,
+            'temperaturas_maximas': temperaturas_maximas,
+            'temperaturas_minimas': temperaturas_minimas,
+            'rendimientos': rendimientos,
+            'humedades': humedades,
+            'precipitaciones': precipitaciones,
+            'radiaciones': radiaciones,
+            'fechas': fechas,
+            'hectarias': hectarias,
+            'nhectarias_filter': nhectarias_filter,
+            'hectarias_labels': hectarias_labels,  # Para el nuevo gráfico
+            'predicciones_counts': predicciones_values,  # Para el nuevo gráfico
+            'rendimiento_totales': rendimiento_totales,  # Sumatoria del rendimiento por hectárea
+            'rendimiento_total': rendimiento_total,  # Rendimiento total
+        })
 
-		<!-- Cursor -->
-		<div class="cursor"></div>
-		<div class="cursor-follower"></div>
-		<!-- Cursor End -->
+    except DatosAgricultura.DoesNotExist:
+        messages.error(request, 'No se encontraron datos agrícolas para el usuario.')
+        return redirect('/')
 
-		<!-- Preloader -->
-		<div class="loader-wrap">
-			<div class="preloader">
-				<div class="preloader-close">x</div>
-				<div id="handle-preloader" class="handle-preloader">
-					<div class="animation-preloader">
-						<div class="txt-loading">
-							<span data-text-preloader="C" class="letters-loading">C</span>
-							<span data-text-preloader="A" class="letters-loading">A</span>
-							<span data-text-preloader="R" class="letters-loading">R</span>
-							<span data-text-preloader="G" class="letters-loading">G</span>
-							<span data-text-preloader="A" class="letters-loading">A</span>
-							<span data-text-preloader="N" class="letters-loading">N</span>
-							<span data-text-preloader="D" class="letters-loading">D</span>
-							<span data-text-preloader="O" class="letters-loading">O</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<!-- Preloader End -->
-
-		<!-- Main Header -->
-		<header class="main-header header-style-two alternate">
-
-			<!-- Header Lower -->
-			<div class="header-lower">
-				<div class="auto-container">
-					<div class="inner-container">
-						<div class="d-flex align-items-center justify-content-between flex-wrap">
-
-							<div class="nav-outer d-flex align-items-center flex-wrap">
-								<div class="logo-box">
-								<div class="logo">
-										<a href="index.html">
-										<img src="{%static 'assets/images/logo_app2.svg' %}" alt="" title=""
-										style="width: 70px; height: auto;">
-										</a>
-									</div>
-								</div>
-
-								<!-- Main Menu -->
-								<nav class="main-menu navbar-expand-md">
-									<div class="navbar-header">
-										<!-- Toggle Button -->
-										<button class="navbar-toggler" type="button" data-toggle="collapse"
-											data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-											aria-expanded="false" aria-label="Toggle navigation">
-											<span class="icon-bar"></span>
-											<span class="icon-bar"></span>
-											<span class="icon-bar"></span>
-										</button>
-									</div>
-
-									<div class="navbar-collapse collapse clearfix" id="navbarSupportedContent">
-										<ul class="navigation clearfix">
-											<li class="dropdown"><a href="{% url 'index'%}">Recolección de datos</a>
-											</li>
-											<li class="dropdown"><a href="{% url 'Reporte'%}">Reportes</a>
-											</li>
-											<li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
-										</ul>
-									</div>
-								</nav>
-							</div>
-
-							<!-- Main Menu End-->
-							<div class="outer-box d-flex align-items-center flex-wrap">
-
-								<!-- Button Box -->
-								<div class="main-header_buttons">
-									<a href="{%url 'login'%}" class="template-btn btn-style-two">
-										<span class="btn-wrap">
-											<span class="text-one">Iniciar sesión</span>
-											<span class="text-two">Iniciar sesión</span>
-										</span>
-									</a>
-									<a href="{%url 'register'%}" class="template-btn btn-style-one">
-										<span class="btn-wrap">
-											<span class="text-one">Registro</span>
-											<span class="text-two">Registro</span>
-										</span>
-									</a>
-								</div>
-
-								<!-- Mobile Navigation Toggler -->
-								<div class="mobile-nav-toggler">
-									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-menu-2"
-										width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5"
-										stroke="currentColor" fill="none" stroke-linecap="round"
-										stroke-linejoin="round">
-										<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-										<path d="M4 6l16 0" />
-										<path d="M4 12l16 0" />
-										<path d="M4 18l16 0" />
-									</svg>
-								</div>
-
-							</div>
-
-						</div>
-					</div>
-				</div>
-			</div>
-			<!--End Header Lower-->
-
-			<!-- Mobile Menu  -->
-			<div class="mobile-menu">
-				<div class="menu-backdrop"></div>
-				<div class="close-btn"><span class="icon fa-solid fa-xmark fa-fw"></span></div>
-
-				<nav class="menu-box">
-					<div class="nav-logo"><a href="index.html"><img src="{%static 'assets/images/mobile-logo.svg' %}" alt=""
-								title=""></a></div>
-					<div class="menu-outer">
-						<!--Here Menu Will Come Automatically Via Javascript / Same Menu as in Header-->
-					</div>
-				</nav>
-			</div>
-			<!-- End Mobile Menu -->
-
-		</header>
-		<!-- End Main Header -->
-
-		<section class="price-three">
-<!-- pegar aqui graficos -->
-		<div class="container mt-5">
-			<h1 class="text-center">Reportes de Datos Agrícolas</h1>
-
-			<form method="GET" action="{% url 'Reporte' %}" class="mb-4">
-				<div class="form-row align-items-end">
-					<div class="col-auto">
-						<label for="nhectarias">Filtrar por número de hectáreas:</label>
-						<input type="number" id="nhectarias" name="nhectarias" value="{{ nhectarias_filter }}" min="1" class="form-control" style="width: 150px;">
-					</div>
-					<div class="col-auto">
-						<label for="fechaDesde">Fecha Desde:</label>
-						<input type="date" id="fechaDesde" name="fechaDesde" class="form-control" value="{{ request.GET.fechaDesde }}">
-					</div>
-					<div class="col-auto">
-						<label for="fechaHasta">Fecha Hasta:</label>
-						<input type="date" id="fechaHasta" name="fechaHasta" class="form-control" value="{{ request.GET.fechaHasta }}">
-					</div>
-					<div class="col-auto">
-						<button type="submit" class="btn btn-primary">Filtrar</button>
-					</div>
-				</div>
-			</form>
-
-			<div class="row">
-				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-					<h3>Gráfico de Temperaturas</h3>
-					<canvas id="temperaturasChart"></canvas>
-				</div>
-				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-					<h3>Gráfico de Rendimiento Estimado</h3>
-					<canvas id="rendimientoChart"></canvas>
-				</div>
-				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-					<h3>Gráfico de Humedad</h3>
-					<canvas id="humedadChart"></canvas>
-				</div>
-				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-					<h3>Gráfico de Precipitación</h3>
-					<canvas id="precipitacionChart"></canvas>
-				</div>
-				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-					<h3>Gráfico de Radiación Solar</h3>
-					<canvas id="radiacionChart"></canvas>
-				</div>
-				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-					<h3>Número de Registros Clasificados por Hectárea</h3>
-					<canvas id="hectareasChart"></canvas>
-				</div>
-			</div>
-
-			{% if datos_agricultura %}
-				<hr>
-				<div class="row">
-					{% for dato in datos_agricultura %}
-						<div class="col-md-6 col-lg-6"> <!-- Dos cuadros por fila -->
-							<div class="card">
-								<div class="card-body">
-									<h5 class="card-title">Registro ID: {{ dato.id }}</h5>
-									<p class="card-text"><strong>Temperatura Máxima:</strong> {{ dato.Temp_Max }} °C</p>
-									<p class="card-text"><strong>Temperatura Mínima:</strong> {{ dato.Temp_Min }} °C</p>
-									<p class="card-text"><strong>Rendimiento Estimado:</strong> {{ dato.Rendimiento }} Kg/ha</p>
-									<p class="card-text"><strong>Humedad:</strong> {{ dato.Humedad }} %</p>
-									<p class="card-text"><strong>Precipitación:</strong> {{ dato.Precipitacion }} mm</p>
-									<p class="card-text"><strong>Radiación Solar:</strong> {{ dato.Radiacion_Solar }} W/m²</p>
-									<p class="card-text"><strong>N° de Hectáreas:</strong> {{ nhectarias_filter }}</p>
-									<p class="card-text"><strong>Tiempo Transcurrido:</strong> {{ dato.tiempo_pro }} segundos</p>
-								</div>
-							</div>
-						</div>
-						{% if forloop.counter|divisibleby:2 %}</div><div class="row">{% endif %} <!-- Nueva fila cada dos elementos -->
-					{% endfor %}
-				</div>
-			{% else %}
-				<div class="alert alert-warning" role="alert">
-					No hay registros disponibles.
-				</div>
-			{% endif %}
-		</div>
-
-		</section>
-		<!-- End Price Three -->
-
-
-		<!-- Main Footer -->
-		<footer class="main-footer">
-			<div class="footer_pattern" style="background-image: url({%static 'assets/images/background/footer-pattern.png' %})">
-			</div>
-			<div class="footer-bottom">
-				<div class="auto-container">
-					
-					<div class="inner-container d-flex justify-content-between align-items-center flex-wrap">
-					
-					<div class="logo-box">
-								<div class="logo">
-										<a href="index.html">
-										<img src="{%static 'assets/images/logo_app2.svg' %}" alt="" title=""
-										style="width: 70px; height: auto;">
-										</a>
-									</div>
-								</div>
-						<div class="footer-copyright">&copy; 2024 <a href="index.html">Estela Gervacio García.</a> aster.
-						</div>
-						<!-- Social Box -->
-						<div class="footer-social_box">
-							<a href="https://facebook.com/"><i class="fa-brands fa-facebook-f"></i></a>
-							<a href="https://twitter.com/"><i class="fa-brands fa-twitter"></i></a>
-							<a href="https://youtube.com/"><i class="fa-brands fa-youtube"></i></a>
-							<a href="https://instagram.com/"><i class="fa-brands fa-instagram"></i></a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</footer>
-
-	</div>
-	<!-- End PageWrapper -->
-
-	<div class="progress-wrap">
-		<svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
-			<path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
-		</svg>
-	</div>
-
-	<script src="{%static 'assets/js/jquery.js' %}"></script>
-	<script src="{%static 'assets/js/popper.min.js' %}"></script>
-	<script src="{%static 'assets/js/bootstrap.min.js' %}"></script>
-	<script src="{%static 'assets/js/appear.js' %}"></script>
-	<script src="{%static 'assets/js/parallax.min.js' %}"></script>
-	<script src="{%static 'assets/js/tilt.jquery.min.js' %}"></script>
-	<script src="{%static 'assets/js/jquery.paroller.min.js' %}"></script>
-	<script src="{%static 'assets/js/wow.js' %}"></script>
-	<script src="{%static 'assets/js/swiper.min.js' %}"></script>
-	<script src="{%static 'assets/js/backtotop.js' %}"></script>
-	<script src="{%static 'assets/js/odometer.js' %}"></script>
-	<script src="{%static 'assets/js/parallax-scroll.js' %}"></script>
-
-	<script src="{%static 'assets/js/gsap.min.js' %}"></script>
-	<script src="{%static 'assets/js/SplitText.min.js' %}"></script>
-	<script src="{%static 'assets/js/ScrollTrigger.min.js' %}"></script>
-	<script src="{%static 'assets/js/ScrollToPlugin.min.js' %}"></script>
-	<script src="{%static 'assets/js/ScrollSmoother.min.js' %}"></script>
-
-	<script src="{%static 'assets/js/touchspin.js' %}"></script>
-	<script src="{%static 'assets/js/jquery.marquee.min.js' %}"></script>
-	<script src="{%static 'assets/js/magnific-popup.min.js' %}"></script>
-	<script src="{%static 'assets/js/nav-tool.js' %}"></script>
-	<script src="{%static 'assets/js/jquery-ui.js' %}"></script>
-	<script src="{%static 'assets/js/element-in-view.js' %}"></script>
-	<script src="{%static 'assets/js/script.js' %}"></script>
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			const ctxTemperaturas = document.getElementById('temperaturasChart').getContext('2d');
-			const ctxRendimiento = document.getElementById('rendimientoChart').getContext('2d');
-			const ctxHumedad = document.getElementById('humedadChart').getContext('2d');
-			const ctxPrecipitacion = document.getElementById('precipitacionChart').getContext('2d');
-			const ctxRadiacion = document.getElementById('radiacionChart').getContext('2d');
-			const ctxHectareas = document.getElementById('hectareasChart').getContext('2d');
-	
-			// Definición única de createChart
-			const createChart = (ctx, type, labels, datasets) => {
-				return new Chart(ctx, {
-					type: type,
-					data: {
-						labels: labels,
-						datasets: datasets
-					},
-					options: {
-						responsive: true,
-						scales: {
-							y: {
-								beginAtZero: true,
-								ticks: {
-									color: 'white'
-								},
-								title: {
-									display: true,
-									text: 'Cantidad',
-									color: 'white',
-								}
-							},
-							x: {
-								ticks: {
-									color: 'white'
-								},
-								title: {
-									display: true,
-									text: 'Hectáreas',
-									color: 'white',
-								}
-							}
-						},
-						plugins: {
-							legend: {
-								labels: {
-									color: 'white'
-								}
-							}
-						}
-					}
-				});
-			};
-	
-			// Crear gráficos
-			createChart(ctxTemperaturas, 'line', {{ fechas|safe }}, [
-				{
-					label: 'Temperatura Máxima (°C)',
-					data: {{ temperaturas_maximas|safe }},
-					borderColor: 'rgba(255, 99, 132, 1)',
-					backgroundColor: 'rgba(255, 99, 132, 0.2)',
-					borderWidth: 2,
-				},
-				{
-					label: 'Temperatura Mínima (°C)',
-					data: {{ temperaturas_minimas|safe }},
-					borderColor: 'rgba(54, 162, 235, 1)',
-					backgroundColor: 'rgba(54, 162, 235, 0.2)',
-					borderWidth: 2,
-				}
-			]);
-	
-			createChart(ctxRendimiento, 'bar', {{ fechas|safe }}, [{
-				label: 'Rendimiento Estimado (Kg/ha)',
-				data: {{ rendimientos|safe }},
-				backgroundColor: 'rgba(75, 192, 192, 0.2)',
-				borderColor: 'rgba(75, 192, 192, 1)',
-				borderWidth: 2
-			}]);
-	
-			createChart(ctxHumedad, 'line', {{ fechas|safe }}, [{
-				label: 'Humedad (%)',
-				data: {{ humedades|safe }},
-				borderColor: 'rgba(255, 206, 86, 1)',
-				backgroundColor: 'rgba(255, 206, 86, 0.2)',
-				borderWidth: 2,
-			}]);
-	
-			createChart(ctxPrecipitacion, 'bar', {{ fechas|safe }}, [{
-				label: 'Precipitación (mm)',
-				data: {{ precipitaciones|safe }},
-				backgroundColor: 'rgba(153, 102, 255, 0.2)',
-				borderColor: 'rgba(153, 102, 255, 1)',
-				borderWidth: 2
-			}]);
-	
-			createChart(ctxRadiacion, 'line', {{ fechas|safe }}, [{
-				label: 'Radiación Solar (W/m²)',
-				data: {{ radiaciones|safe }},
-				borderColor: 'rgba(255, 159, 64, 1)',
-				backgroundColor: 'rgba(255, 159, 64, 0.2)',
-				borderWidth: 2,
-			}]);
-	
-			const hectariasLabels = {{ hectarias_labels|safe }};
-			const prediccionesCounts = {{ predicciones_counts|safe }};
-			
-			// Crear el gráfico de hectáreas
-			createChart(ctxHectareas, 'bar', hectariasLabels, [{
-				label: 'Número de Predicciones por Hectárea',
-				data: prediccionesCounts,
-				backgroundColor: 'rgba(54, 162, 235, 0.5)',
-				borderColor: 'rgba(54, 162, 235, 1)',
-				borderWidth: 1
-			}]);
-		});
-	</script>
-	<!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js' %}></script><![endif]-->
-	<!--[if lt IE 9]><script src="js/respond.js' %}></script><![endif]-->
-
-</body>
-
-</html>
+    except Exception as e:
+        messages.error(request, f'Ocurrió un error: {str(e)}')
+        return redirect('/')

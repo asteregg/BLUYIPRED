@@ -158,12 +158,24 @@ def reporte(request):
     # Obtener el número de hectáreas del formulario, si se proporciona
     nhectarias_filter = request.GET.get('nhectarias', None)
 
-    # Obtener todos los datos agrícolas del usuario autenticado
+    # Obtener el rango de fechas del formulario, si se proporciona
+    fecha_inicio = request.GET.get('fecha_inicio', None)
+    fecha_fin = request.GET.get('fecha_fin', None)
+
+    # Filtrar los datos agrícolas del usuario autenticado
     try:
+        # Construir la consulta base
+        query = DatosAgricultura.objects.filter(pkuser_id=user_id)
+
+        # Aplicar filtros por hectárea y fechas, si se proporcionan
         if nhectarias_filter:
-            datos_agricultura = DatosAgricultura.objects.filter(pkuser_id=user_id, nhectaria=nhectarias_filter)
-        else:
-            datos_agricultura = DatosAgricultura.objects.filter(pkuser_id=user_id)
+            query = query.filter(nhectaria=nhectarias_filter)
+        
+        if fecha_inicio and fecha_fin:
+            query = query.filter(created__range=[fecha_inicio, fecha_fin])
+
+        # Obtener los datos filtrados
+        datos_agricultura = list(query)
 
         # Preparar datos para los gráficos
         temperaturas_maximas = [dato.Temp_Max for dato in datos_agricultura]
@@ -173,14 +185,21 @@ def reporte(request):
         precipitaciones = [dato.Precipitacion for dato in datos_agricultura]
         radiaciones = [dato.Radiacion_Solar for dato in datos_agricultura]
         fechas = [dato.created.strftime("%Y-%m-%d") for dato in datos_agricultura]
+        hectarias = [dato.nhectaria for dato in datos_agricultura]
 
-        # Contar el número de predicciones por hectárea
-        # Usar todos los datos para el conteo de hectáreas
-        todos_datos_agricultura = DatosAgricultura.objects.filter(pkuser_id=user_id)
-        hectarias = [dato.nhectaria for dato in todos_datos_agricultura]
-        contador_hectarias = Counter(hectarias)
-        hectarias_labels = list(contador_hectarias.keys())
-        predicciones_counts = list(contador_hectarias.values())
+        # Contar el número de predicciones por hectárea y sumar el rendimiento
+        predicciones_counts = Counter(hectarias)
+        rendimiento_por_hectaria = defaultdict(float)
+
+        for dato in datos_agricultura:
+            rendimiento_por_hectaria[dato.nhectaria] += dato.Rendimiento
+
+        hectarias_labels = list(predicciones_counts.keys())
+        predicciones_values = list(predicciones_counts.values())
+        rendimiento_totales = [rendimiento_por_hectaria[label] for label in hectarias_labels]
+
+        # Calcular el rendimiento total
+        rendimiento_total = sum(rendimiento_totales)
 
         return render(request, 'reporte.html', {
             'datos_agricultura': datos_agricultura,
@@ -191,9 +210,12 @@ def reporte(request):
             'precipitaciones': precipitaciones,
             'radiaciones': radiaciones,
             'fechas': fechas,
+            'hectarias': hectarias,
             'nhectarias_filter': nhectarias_filter,
             'hectarias_labels': hectarias_labels,  # Para el nuevo gráfico
-            'predicciones_counts': predicciones_counts,  # Para el nuevo gráfico
+            'predicciones_counts': predicciones_values,  # Para el nuevo gráfico
+            'rendimiento_totales': rendimiento_totales,  # Sumatoria del rendimiento por hectárea
+            'rendimiento_total': rendimiento_total,  # Rendimiento total
         })
 
     except DatosAgricultura.DoesNotExist:
@@ -203,7 +225,7 @@ def reporte(request):
     except Exception as e:
         messages.error(request, f'Ocurrió un error: {str(e)}')
         return redirect('/')
-    
+
 
 
 def latest_record_view(request):
