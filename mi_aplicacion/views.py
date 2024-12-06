@@ -141,10 +141,111 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-def logout_view(request):
-    logout(request)
-    messages.success(request, 'Has cerrado sesión con éxito.')
-    return redirect('login')
+def reporte(request):
+    user_id = request.session.get('user_id')
+
+    # Verificar si el usuario está autenticado
+    if user_id is None:
+        messages.error(request, 'No estás autenticado. Por favor, inicia sesión para acceder a los reportes.')
+        return redirect('/accounts/login/')
+
+    # Obtener el número de hectáreas del formulario, si se proporciona
+    nhectarias_filter = request.GET.get('nhectarias', None)
+
+    # Obtener el rango de fechas del formulario, si se proporciona
+    fecha_inicio = request.GET.get('fecha_inicio', None)
+    fecha_fin = request.GET.get('fecha_fin', None)
+
+    # Filtrar los datos agrícolas del usuario autenticado
+    try:
+        # Construir la consulta base
+        query = DatosAgricultura.objects.filter(pkuser_id=user_id)
+
+        # Aplicar filtros por hectárea y fechas, si se proporcionan
+        if nhectarias_filter:
+            query = query.filter(nhectaria=nhectarias_filter)
+        
+        if fecha_inicio and fecha_fin:
+            query = query.filter(created__range=[fecha_inicio, fecha_fin])
+
+        # Obtener los datos filtrados
+        datos_agricultura = list(query)
+
+        # Preparar datos para los gráficos existentes
+        temperaturas_maximas = [dato.Temp_Max for dato in datos_agricultura]
+        temperaturas_minimas = [dato.Temp_Min for dato in datos_agricultura]
+        rendimientos = [dato.Rendimiento for dato in datos_agricultura]
+        humedades = [dato.Humedad for dato in datos_agricultura]
+        precipitaciones = [dato.Precipitacion for dato in datos_agricultura]
+        radiaciones = [dato.Radiacion_Solar for dato in datos_agricultura]
+        fechas = [dato.created.strftime("%Y-%m-%d") for dato in datos_agricultura]
+        hectarias = [dato.nhectaria for dato in datos_agricultura]
+
+        # Contar el número de predicciones por hectárea y sumar el rendimiento
+        predicciones_counts = Counter(hectarias)
+        rendimiento_por_hectaria = defaultdict(float)
+
+        for dato in datos_agricultura:
+            rendimiento_por_hectaria[dato.nhectaria] += dato.Rendimiento
+
+        hectarias_labels = list(predicciones_counts.keys())
+        predicciones_values = list(predicciones_counts.values())
+        rendimiento_totales = [rendimiento_por_hectaria[label] for label in hectarias_labels]
+
+        # Calcular el rendimiento total
+        rendimiento_total = sum(rendimiento_totales)
+
+        # Calcular la pérdida económica por hectárea (nuevo gráfico)
+        perdida_por_hectaria = defaultdict(int)
+        caida_fru_anterior = {}
+
+        for dato in datos_agricultura:
+            hectaria = dato.nhectaria
+            caida_fru_actual = dato.Caida_Frutos
+            
+            # Si la hectárea ya ha sido registrada, comprobar la caída de frutos
+            if hectaria in caida_fru_anterior:
+                if caida_fru_actual > caida_fru_anterior[hectaria]:
+                    perdida_por_hectaria[hectaria] += 1  # Aumenta la pérdida
+                # Si el porcentaje se mantiene, no se hace nada
+            else:
+                perdida_por_hectaria[hectaria] = 1  # Inicializa la pérdida si es la primera vez
+
+            # Actualizar la caída anterior para la hectárea actual
+            caida_fru_anterior[hectaria] = caida_fru_actual
+
+        # Preparar los datos para el nuevo gráfico
+        hectarias_labels_perdida = list(perdida_por_hectaria.keys())
+        perdida_values = list(perdida_por_hectaria.values())
+        perdida_total = sum(perdida_values)
+
+        return render(request, 'reporte.html', {
+            'datos_agricultura': datos_agricultura,
+            'temperaturas_maximas': temperaturas_maximas,
+            'temperaturas_minimas': temperaturas_minimas,
+            'rendimientos': rendimientos,
+            'humedades': humedades,
+            'precipitaciones': precipitaciones,
+            'radiaciones': radiaciones,
+            'fechas': fechas,
+            'hectarias': hectarias,
+            'nhectarias_filter': nhectarias_filter,
+            'hectarias_labels': hectarias_labels,  # Para el gráfico existente
+            'predicciones_counts': predicciones_values,  # Para el gráfico existente
+            'rendimiento_totales': rendimiento_totales,  # Sumatoria del rendimiento por hectárea
+            'rendimiento_total': rendimiento_total,  # Rendimiento total
+            'hectarias_labels_perdida': hectarias_labels_perdida,  # Para el nuevo gráfico
+            'perdida_values': perdida_values,  # Pérdida económica por hectárea
+            'perdida_total': perdida_total,  # Pérdida total
+        })
+
+    except DatosAgricultura.DoesNotExist:
+        messages.error(request, 'No se encontraron datos agrícolas para el usuario.')
+        return redirect('/')
+
+    except Exception as e:
+        messages.error(request, f'Ocurrió un error: {str(e)}')
+        return redirect('/')
 
 
 def reporte(request):

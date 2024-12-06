@@ -348,9 +348,14 @@
 				</div>
 				<!-- MODIFICICAR EL ID DEL GRAFICO DEL I 2 -->
 				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-					<h3>INDICADOR N° 2</h3>
-					<canvas></canvas>
+					<h3>Perdida Economica Estimada</h3>
+					<canvas id="myChartPerdida"> </canvas>
+					<div id="totalLoss" style="text-align: center; font-size: 16px; margin-top: 10px; color: white;">
+						Pérdida Total Estimada: <span id="totalLossValue">{{ perdida_total }}</span> Unidades Monetarias
+					</div>
 				</div>
+
+
 			</div>
 
 			{% if datos_agricultura %}
@@ -698,6 +703,50 @@
                 }
             }
         });
+    });
+
+	const labels = {{ hectarias_labels_perdida|safe }}; // Etiquetas de hectáreas para el nuevo gráfico
+    const data = {{ perdida_values|safe }};             // Pérdida económica por hectárea
+    const totalLoss = {{ perdida_total|safe }};         // Pérdida total
+
+    const ctx = document.getElementById('myChartPerdida').getContext('2d');
+    const myChartPerdida = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Pérdida Económica Estimada',
+                data: data,
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 99, 132, 0.6)' // Asegúrate de tener suficientes colores
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 99, 132, 1)' // Asegúrate de tener suficientes colores
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Pérdida Económica (Unidades Monetarias)'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Hectáreas'
+                    }
+                }
+            }
+        }
     });
 	</script>
 	<!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js' %}></script><![endif]-->
